@@ -32,11 +32,12 @@ INTO #tt
 FROM #t
 GROUP BY gs
 
---按公式类别遍历
+
 --变量
 DECLARE @i int,@n INT
 DECLARE @gs VARCHAR(50)
 DECLARE @sql VARCHAR(MAX)
+--按公式类别遍历
 SELECT @i=MIN(rowid),@n=MAX(rowid) FROM #tt
 WHILE(@i<=@n)
 BEGIN
