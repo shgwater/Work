@@ -3,6 +3,8 @@ title: SQL学习
 tags: 新建,模板,小书匠
 grammar_cjkRuby: true
 ---
+[toc!?direction=lr]
+
 # sqlserver 动态计算
 2019年02月28日 18时56分22秒
 
