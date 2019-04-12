@@ -173,3 +173,70 @@ left join Fact_Sale_price b
 on a.store_no=b.store_no and a.goods_no = b.goods_no
 
 ```
+# sqlserver decimal转为varchar
+因为 decimal 格式的有小数位，cast 函数只能将他变成 10.0000 的形式，因此还需要替换掉的后面的。
+``` sql
+select replace(cast(101.00000000 as varchar(100)),'.00000000','') store_no 
+```
+# mysql 组内分组排序
+``` sql
+
+
+
+SELECT
+	a.*, count(1) AS rank
+FROM
+	(select 1 as id,'aaa' as name ,1 as category_id union all
+select 2 as id,'bbb' as name ,2 as category_id union all
+select 3 as id,'ccc' as name ,1 as category_id union all
+select 4 as id,'ddd' as name ,2 as category_id union all
+select 5 as id,'eee' as name ,1 as category_id 
+) a
+LEFT JOIN (select 1 as id,'aaa' as name ,1 as category_id union all
+select 2 as id,'bbb' as name ,2 as category_id union all
+select 3 as id,'ccc' as name ,1 as category_id union all
+select 4 as id,'ddd' as name ,2 as category_id union all
+select 5 as id,'eee' as name ,1 as category_id 
+) b ON a.category_id = b.category_id
+AND a.id <= b.id
+GROUP BY
+	a.category_id,
+	a.id
+ORDER BY
+	a.category_id,
+	a.id DESC
+
+
+SELECT
+	*
+FROM
+	(select 1 as id,'aaa' as name ,1 as category_id union all
+select 2 as id,'bbb' as name ,2 as category_id union all
+select 3 as id,'ccc' as name ,1 as category_id union all
+select 4 as id,'ddd' as name ,2 as category_id union all
+select 5 as id,'eee' as name ,1 as category_id 
+) a
+LEFT JOIN (select 1 as id,'aaa' as name ,1 as category_id union all
+select 2 as id,'bbb' as name ,2 as category_id union all
+select 3 as id,'ccc' as name ,1 as category_id union all
+select 4 as id,'ddd' as name ,2 as category_id union all
+select 5 as id,'eee' as name ,1 as category_id 
+) b ON a.category_id = b.category_id
+AND a.id >= b.id
+where a.category_id = 1
+GROUP BY
+	a.category_id,
+	a.id
+
+``` 
+
+
+
+
+
+
+
+
+
+
+
