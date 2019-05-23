@@ -248,6 +248,20 @@ select * from fact_decorate_order order by concat(DATE(create_date),' ',TIME(cre
 group by user_id 
 ```
 
+# mysql使用 in 子查询效率低下
+mysql直接使用in (select user_id from table) 时效率会超级超级超级慢，具体原理暂且不论，可以在外面再套一层，这样的话查询速度就会变正常。
+``` sql
+select * 
+from table_A
+where user_id in (
+	select user_id
+	from (
+		select user_id 
+		from table_B
+	) temp
+)
+```
+
 
 
 
