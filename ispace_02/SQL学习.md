@@ -236,7 +236,16 @@ GROUP BY
 -- 返回每个用户的创建时间最早的订单编号
 -- step 1 首先根据时间排序
 
-select * from 
+select * from fact_decorate_order order by concat(DATE(create_date),' ',TIME(create_time));
+
+-- step 2 根据用户编号分组
+-- 注意，此时mysql5.7 以上的话需要加limit，要不然会有问题。
+
+select a.*,'1' rank from (
+select * from fact_decorate_order order by concat(DATE(create_date),' ',TIME(create_time))
+-- limit 100
+) a
+group by user_id 
 ```
 
 
