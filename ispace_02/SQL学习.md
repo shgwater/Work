@@ -283,7 +283,7 @@ where user_id in (
 
     END WHILE ;
 ```
-
+按照id每次抽一万条。
 
 
 
