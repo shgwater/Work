@@ -263,7 +263,26 @@ where user_id in (
 ```
 # mysql 大量数据关联查询
 大量数据（百万）表间关联的时候，查询速度会特别的慢，此时需要在关联字段上创建索引，会极大的提高查询效率。
+但是有多个大表关联的时候，即便建立了索引查询效率依然很低，此时需要了解mysql中驱动表的概念。最外层的表，也就是left join 最左边的表就是驱动表，查询的效率与驱动表的行数有关，行数越低查询效率越高。
+因此遇到那种百万级别的主表取进行关联的时候，可以分组进行关联。如下。
 
+``` sql
+		WHILE i < num DO
+
+				insert into Fact_Decorate_Order_Std
+					SELECT
+					*
+				FROM	(select * from Fact_Decorate_Order where id >= i and id < i+100000) a 
+				LEFT JOIN T71 b ON a.user_id = b.user_id
+				LEFT JOIN T72 c ON a.orders_no = c.fk_docr_orders_no 
+				left join  T6 e on a.orders_no = e.orders_no -- 20190304 订单明细标准表增加调整的时间，之前只是用户穿刺表处理了时间
+				left join dim_01_contract_tag f
+				on a.orders_no = f.orders_no ;
+
+        SET i = i + 100000 ;
+
+    END WHILE ;
+```
 
 
 
