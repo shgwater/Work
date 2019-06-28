@@ -316,10 +316,28 @@ into temp_3
 insert into temp_3 values('D','戊',6);
 insert into temp_3 values('A','甲',7);
 insert into temp_3 values('C','丙',8);
-
+-- 不能正常合并的方法
 select *
 from temp_1 full join temp_2 on temp_1.apt=temp_2.apt and temp_1.name=temp_2.name
 full join temp_3 on temp_1.apt=temp_3.apt and temp_1.name=temp_3.name 
+
+-- 现有方法
+select case when temp_1.apt is null then temp_3.apt else temp_1.apt end apt
+					,case when temp_1.name is null then temp_3.name else temp_1.name end name 
+					,temp_1.num_1
+					,temp_1.num_2 
+					,temp_3.num_3
+from 
+(
+		select case when temp_1.apt is null then temp_2.apt else temp_1.apt end apt
+					,case when temp_1.name is null then temp_2.name else temp_1.name end name 
+					,temp_1.num_1
+					,temp_2.num_2
+		from temp_1 full join temp_2 on temp_1.apt=temp_2.apt and temp_1.name=temp_2.name
+) temp_1
+full join temp_3 on temp_1.apt=temp_3.apt and temp_1.name=temp_3.name 
+
+
 
 drop table if EXISTS temp_1;
 drop table if EXISTS temp_2;
