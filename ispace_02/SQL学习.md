@@ -285,7 +285,46 @@ where user_id in (
 ```
 按照id每次抽一万条。
 
+# 同结构多关联查询问题
 
+  我们的订单数据结构目前是以订单为核心的，所有阶段的时间都记录在一条信息上，这样的话如果我想要取用某天实际的各阶段的数据的时候，就需要每个阶段都建立一个查询，分别查出每个阶段需要使用的数据，然后关联在一起。
+  	实际使用过程中每次都需要关联表格效率太低，因此想做一张类似已经查询完的结果表的表放在那里，这样的话使用起来会比较方便。
+	在实际操作中遇到了一点疑问，就是每个阶段的维度不一定是相同的，我们需要取全连接的所有数据，并且把空的维度进行替换，两张表的时候没有任何问题，但是随着阶段的增多，当增加到三张表的时候就会出现问题，如果 a full join b full join c ，那么c的关联条件怎么做?
+	现阶段我能想到的解决办法就是  a先与b关联做出一个子查询然后和c关联。
+
+- 验证sql如下（sqlserver环境）
+``` sql
+select 'A' as apt
+			,'甲' as name 
+			,1 as num_1
+into temp_1
+
+insert into temp_1 values('B','乙',2);
+
+select 'B' as apt
+			,'乙' as name 
+			,3 as num_2
+into temp_2
+
+insert into temp_2 values('C','丙',4);
+
+select 'C' as apt
+			,'丁' as name 
+			,5 as num_3
+into temp_3
+
+insert into temp_3 values('D','戊',6);
+insert into temp_3 values('A','甲',7);
+insert into temp_3 values('C','丙',8);
+
+select *
+from temp_1 full join temp_2 on temp_1.apt=temp_2.apt and temp_1.name=temp_2.name
+full join temp_3 on temp_1.apt=temp_3.apt and temp_1.name=temp_3.name 
+
+drop table if EXISTS temp_1;
+drop table if EXISTS temp_2;
+drop table if EXISTS temp_3;
+``` 
 
 
 
