@@ -343,7 +343,70 @@ drop table if EXISTS temp_1;
 drop table if EXISTS temp_2;
 drop table if EXISTS temp_3;
 ``` 
+# 相关子查询和非相关子查询（可实现累加）
 
+
+子查询：嵌套在其它查询中的查询语句。（又称为内部查询）
+
+主查询：包含其它子查询的查询称为主查询。（又称外部查询）
+
+ 
+
+子查询分为两类：
+
+相关子查询
+非相关子查询
+在主查询中，每查询一条记录，需要重新做一次子查询，这种称为相关子查询。
+
+在主查询中，子查询只需要执行一次，子查询结果不再变化，供主查询使用，这种查询方式称为非相关子查询。
+
+
+ ``` sql
+ 
+  -- 相关子查询
+SELECT sname
+FROM student
+WHERE sex = ‘女’ AND
+EXISTS ( SELECT  *         //相关子查询
+FROM sc
+WHERE sc.sno = student.sno AND
+sc.cno LIKE ‘ee%’);
+ 
+ 
+ -- 非相关子查询  
+ 
+ SELECT sname
+FROM student
+WHERE sex = ‘女’ AND
+sno IN ( SELECT DISTINCT sno       //不相关子查询
+FROM sc
+WHERE cno LIKE ‘ee%’);
+
+
+-- 实际用到的子查询 实现了累加的功能  实际是一个相关子查询
+SELECT
+	(
+		SELECT
+			sum(
+
+				IF (
+					payment_category IN (6, 7, 11, 13),
+					payment_amount *- 1,
+					payment_amount
+				)
+			)
+		FROM
+			decorate_order_pay b
+		WHERE
+			b.orders_no = a.orders_no
+		AND b.id * 1 <= a.id * 1
+	) sumnum,
+	a.*
+FROM
+	decorate_order_pay a
+WHERE
+	orders_no = 'DD20181202000485'
+ ```
 
 
 
