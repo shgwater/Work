@@ -384,6 +384,7 @@ WHERE cno LIKE ‘ee%’);
 
 
 -- 实际用到的子查询 实现了累加的功能  实际是一个相关子查询
+-- 在mysql中实现了累加
 SELECT
 	(
 		SELECT
