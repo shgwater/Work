@@ -1,6 +1,6 @@
 ---
 title: SQL学习 
-tags: 新建,模板,小书匠
+tags: mysql
 grammar_cjkRuby: true
 ---
 [toc!?direction=lr]
