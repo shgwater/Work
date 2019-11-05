@@ -412,4 +412,29 @@ WHERE
 
 
 
+# sqlserver中游标的使用
 
+现在有一个链接地址处理的问题，有多个链接中的特定字符需要替换成多个城市的缩写。
+考虑使用嵌套循环的方式处理，但是sql中没有类似python中的列表，没办法临时存储，经过查询资料发现sql解决这个问题的办法是创建索引，使用索引作为临时存储的容器。
+
+``` sql
+
+DECLARE @area VARCHAR (10)
+SET @area = 'area' -- 创建游标
+DECLARE area_cursor CURSOR FOR (		select 'bj' as area union		select 'sh' as area union		select 'sz' as area union		select 'szh' as area union		select 'cd' as area union		select 'tj' as area union		select 'ty' as area union		select 'gz' as area union		select 'gy' as area union		select 'wh' as area union		select 'jn' as area union		select 'xa' as area union		select 'lf' as area union		select 'zz' as area union		select 'nj' as area union		select 'nc' as area 
+) --打开游标--
+OPEN area_cursor --开始循环游标变量--
+
+FETCH NEXT FROM	area_cursor INTO @area
+
+WHILE @@FETCH_STATUS = 0 --返回被 FETCH语句执行的最后游标的状态--
+	BEGIN
+		print(@area)
+		print(REPLACE('http://m.ikongjian.com/liveOffice/%','*',@area))
+	FETCH NEXT	FROM		area_cursor INTO @area --转到下一个游标，没有会死循环
+	END 
+
+CLOSE area_cursor --关闭游标
+DEALLOCATE area_cursor --释放游标
+
+```
