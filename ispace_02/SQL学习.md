@@ -419,22 +419,103 @@ WHERE
 
 ``` sql
 
+DECLARE @i int
 DECLARE @area VARCHAR (10)
+set @i = 0
 SET @area = 'area' -- 创建游标
 DECLARE area_cursor CURSOR FOR (		select 'bj' as area union		select 'sh' as area union		select 'sz' as area union		select 'szh' as area union		select 'cd' as area union		select 'tj' as area union		select 'ty' as area union		select 'gz' as area union		select 'gy' as area union		select 'wh' as area union		select 'jn' as area union		select 'xa' as area union		select 'lf' as area union		select 'zz' as area union		select 'nj' as area union		select 'nc' as area 
 ) --打开游标--
-OPEN area_cursor --开始循环游标变量--
-
+OPEN area_cursor 
+--开始循环游标变量--
 FETCH NEXT FROM	area_cursor INTO @area
+
+
+-- 创建临时表
+drop table if exists #stand_url_temp
+
+create table #stand_url_temp(
+entry_url nvarchar(256),
+source_no nvarchar(10)
+)
 
 WHILE @@FETCH_STATUS = 0 --返回被 FETCH语句执行的最后游标的状态--
 	BEGIN
-		print(@area)
-		print(REPLACE('http://m.ikongjian.com/liveOffice/%','*',@area))
+		insert into #stand_url_temp
+			select REPLACE(entry_url, '*',@area) ,source_no from (
+					select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
+					select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
+					select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
+					select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
+					select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
+					select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
+					select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
+					select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
+					select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
+					select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
+					select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
+					select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
+					select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
+					select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
+					select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
+					select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
+					select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
+					select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
+					select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
+		) stand_url
+			where entry_url like '%*%'
+
 	FETCH NEXT	FROM		area_cursor INTO @area --转到下一个游标，没有会死循环
 	END 
 
 CLOSE area_cursor --关闭游标
 DEALLOCATE area_cursor --释放游标
 
+insert into  #stand_url_temp
+select entry_url,source_no
+from (
+	select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
+	select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
+	select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
+	select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
+	select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
+	select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
+	select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
+	select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
+	select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
+	select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
+	select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
+	select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
+	select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
+	select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
+	select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
+	select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
+	select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
+	select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
+	select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
+) stand_url
+where entry_url not like '%*%'
+
+
+```
+# sqlserver中取周初周末的日期
+
+``` sql
+
+-- 首先将当前日期减一,因为sqlserver默认从周日开始第一周
+-- 然后计算从计算机0开始到现在有多少周
+-- 再然后从零时间加上面取出来的周。即为周初
+-- 再然后6代表第七天的时间加上面取出来的周。即为周末
+select DATEADD(wk, DATEDIFF(wk,0,DATEADD(dd, -1, '2019-11-08') ), 0)
 ```
