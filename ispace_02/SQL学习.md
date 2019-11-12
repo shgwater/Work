@@ -518,4 +518,7 @@ where entry_url not like '%*%'
 -- 再然后从零时间加上面取出来的周。即为周初
 -- 再然后6代表第七天的时间加上面取出来的周。即为周末
 select DATEADD(wk, DATEDIFF(wk,0,DATEADD(dd, -1, '2019-11-08') ), 0)
+
+-- 假如你要计算这个季度的第一天，这个例子告诉你该如何做。
+　SELECT DATEADD(qq, DATEDIFF(qq,0,getdate()), 0)
 ```
