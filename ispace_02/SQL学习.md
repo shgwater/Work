@@ -408,7 +408,15 @@ FROM
 WHERE
 	orders_no = 'DD20181202000485'
  ```
+sqlserver中实现分组累加要方便许多。有函数可以直接使用。
 
+``` sql
+select 
+sum(payment_amount) over(partition by orders_no order by create_time)
+ from fact_decorate_order_pay 
+where orders_no ='DD20181202000485'
+
+```
 
 
 
