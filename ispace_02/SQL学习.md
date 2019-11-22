@@ -247,6 +247,10 @@ select * from fact_decorate_order order by concat(DATE(create_date),' ',TIME(cre
 ) a
 group by user_id 
 ```
+## 思路更新
+
+最近在有需求取最早的订单编号，想了一下可能不需要现在这么复杂，只需要找出最大或者最小的ID，然后使用原表来关联（使用ID  in 也可以，但是数据量大的时候join效率更高）此id，再加个条件不为空，既能得到想要的最大（小）的值那行的信息。
+
 
 # mysql使用 in 子查询效率低下
 mysql直接使用in (select user_id from table) 时效率会超级超级超级慢，具体原理暂且不论，可以在外面再套一层，这样的话查询速度就会变正常。
