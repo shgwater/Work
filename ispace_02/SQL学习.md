@@ -581,3 +581,15 @@ drop table if EXISTS  #Data
 drop table if EXISTS  #DataNew
 
 ```
+
+# 数据库的思路
+
+关于增加上传日期的问题，可以从数据库表本身的可用功能的思路去想，不必修改现有的上传逻辑等。
+给需要上传时间的表增加一列时间，给该列一个默认值为当前时间，当上传的时候，会自动添加上传时间。
+sqlserver下语句如下。
+
+ ``` sql
+ alter table fact_eas_adjustment_upload_temp add AddDate datetime default GETDATE()
+``` 
+
+ 
