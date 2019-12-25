@@ -591,5 +591,28 @@ sqlserver下语句如下。
  ``` sql
  alter table fact_eas_adjustment_upload_temp add AddDate datetime default GETDATE()
 ``` 
+# mysql 实现累加
+``` sql
+		select 
+			(select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) CUSUM
+			-- 2019年8月8日 shg 以下为 累加字段的标记字段，用作后续判断
+			,if((select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1)>=500,1,0) CUSUM_sign
+			-- 2019年11月19日 shg  之前的判断逻辑有误，会取到首次交钱不满500的作为首次退订至不满五百的时间。
+			-- 新增交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) < 500   & 回款明细当前余额 >=500
+			-- 新减交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) >= 500   & 回款明细当前余额 >500
+			,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) < 500 and
+			 (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) >= 500 then 1 else 0 end  as new_payment_state
+			,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) >= 500 and
+			 (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) < 500 then 1 else 0 end  as new_un_payment_state
+			,a.*
+		from www.decorate_order_pay  a
+		-- where orders_no = 'DD20180518000839'
+		order by orders_no,create_time 
+
+```
+
+
+		
+
 
  
