@@ -610,8 +610,19 @@ sqlserver下语句如下。
 		order by orders_no,create_time 
 
 ```
+# sql关联的附表的过滤
 
+之前使用sql关联附表的时候，如果只需要附表中的部分信息的话，我会使用子查询先将部分信息筛选出来，然后用该子查询的查询结果再与主表关联。这样的话会对查询效率有些影响。
+今天看到了其他人写的sql，她的关联条件中增加了过滤，即下代码框中的
+**left join dim_area b on a.area_code = b.area_code and b.city = '西安'**
+ 没想到可以直接放到关联字段之后，好用。
 
+``` sql
+select a.orders_no,b.*  from fact_decorate_order_std  a
+left join dim_area b on a.area_code = b.area_code and b.city = '西安'
+where user_id = '1043087'
+
+```
 		
 
 
