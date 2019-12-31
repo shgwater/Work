@@ -623,7 +623,42 @@ left join dim_area b on a.area_code = b.area_code and b.city = '西安'
 where user_id = '1043087'
 
 ```
-		
+# sqlserver 临时表清理
+
+使用存储过程方式来实现临时表的清理。
+
+```
+ALTER PROCEDURE [dbo].[PF_ETL_Clear_TempTable]
+AS
+BEGIN	
+
+	DECLARE @name VARCHAR(100)
+	DECLARE @sql VARCHAR(MAX) 
+
+	DECLARE TableNameCursor CURSOR FOR 
+	SELECT NAME FROM SYSOBJECTS WHERE XTYPE='U' and name like 'BI%' ORDER BY NAME
+	
+	-- 打开游标 
+	OPEN TableNameCursor
+	fetch next from TableNameCursor into @name 
+	WHILE @@fetch_status = 0 
+	BEGIN
+	
+		set @sql = 'drop table '+@name
+		print @sql
+		exec(@sql)
+		fetch next from TableNameCursor into @name 
+
+	END
+
+	
+	-- 关闭游标
+	CLOSE TableNameCursor
+	deallocate TableNameCursor 
+
+	-- drop table BI_1_1_G1_120900029263CE
+END
+```
 
 
  
