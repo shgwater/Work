@@ -661,4 +661,32 @@ END
 ```
 
 
+ # mysql获取工作日的函数
  
+ ``` sql
+ 
+ CREATE FUNCTION `workDayNums`(beginDate datetime,endDate datetime) RETURNS int(11)
+BEGIN
+  DECLARE return_val INT DEFAULT 0 ;
+  DECLARE tempDate datetime ;
+  addDay :
+  LOOP
+    IF endDate is NULL OR beginDate is NULL THEN
+        LEAVE addDay ;
+    END IF ;
+    IF tempDate IS NULL THEN
+        SET tempDate = beginDate ;
+    END IF ;
+    IF DATEDIFF(endDate, tempDate) < 0 THEN
+        LEAVE addDay ;
+    END IF ;
+    IF WEEKDAY(tempDate) = 5 OR WEEKDAY(tempDate) = 6 THEN
+        SET return_val = return_val + 1 ;
+    END IF ;
+    SET tempDate = DATE_ADD(tempDate, INTERVAL 1 DAY) ;
+  END LOOP addDay ;
+  SET return_val = DATEDIFF(endDate, beginDate) + 1- return_val ;
+  RETURN (return_val) ;
+END
+
+ ```
