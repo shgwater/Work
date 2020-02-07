@@ -531,7 +531,7 @@ where entry_url not like '%*%'
 ```
 # sqlserver中字符串转日期和日期转字符串
 ```
-select convert(date,GETDATE() ,102) -- 字符串转日期
+select convert(date,GETDATE() ,102) -- 字符串转日期 -- 还可以作为去掉时间，只保留日期
 select convert(varchar(10),GETDATE() ,102) -- 日期转字符串
 ```
 # sqlserver中取周初周末的日期
