@@ -703,7 +703,7 @@ END
 ``` sql
 with 
 t1 AS (
-select 1001 as no,'zhang' as name 
+	select 1001 as no,'zhang' as name 
 ),
 t2 AS (
 	select 1001 as no,'sale' as dept 
