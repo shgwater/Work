@@ -697,9 +697,10 @@ END
  ```
  
 # with as 子查询
-
-	在学习hive的过程中，别人的代码里面用到了 with as ，此语法为 sql 通用语法，实际上就是子查询，但是当子查询过多的时候方便管理，示例如下。
-
+  WITH AS短语，也叫做子查询部分（subquery factoring），可以让你做很多事情，定义一个SQL片断，该SQL片断会被整个SQL语句所用到。有的时候，是为了让SQL语句的可读性更高些，也有可能是在UNION ALL的不同部分，作为提供数
+据的部分
+  在学习hive的过程中，别人的代码里面用到了 with as ，此语法为 sql 通用语法，实际上就是子查询，但是当子查询过多的时候方便管理，示例如下。
+	https://www.cnblogs.com/zsan/p/8655456.html
 ``` sql
 with 
 t1 AS (
