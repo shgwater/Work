@@ -695,3 +695,19 @@ BEGIN
 END
 
  ```
+ 
+# with as 子查询
+
+	在学习hive的过程中，别人的代码里面用到了 with as ，此语法为 sql 通用语法，实际上就是子查询，但是当子查询过多的时候方便管理，示例如下。
+
+``` sql
+with 
+t1 AS (
+select 1001 as no,'zhang' as name 
+),
+t2 AS (
+	select 1001 as no,'sale' as dept 
+)
+select * from t1 left join t2 on t1.no = t2.no
+
+```
