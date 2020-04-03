@@ -701,6 +701,7 @@ END
 据的部分
   在学习hive的过程中，别人的代码里面用到了 with as ，此语法为 sql 通用语法，实际上就是子查询，但是当子查询过多的时候方便管理，示例如下。
 	https://www.cnblogs.com/zsan/p/8655456.html
+	
 ``` sql
 with 
 t1 AS (
@@ -712,3 +713,67 @@ t2 AS (
 select * from t1 left join t2 on t1.no = t2.no
 
 ```
+
+# sqlserver 半全角字符不敏感
+
+处理数据过程中发现，当使用含有半全角的字段进行关联的时候会出现重复关联的情况。
+
+``` sql
+select *
+from(
+	select '爱空间科技（北京）有限公司' as account
+	union ALL
+	select '爱空间科技(北京)有限公司' as account
+) a
+left join Dim_Account_Agent_Mapping daam
+on a.account = daam.account 
+
+```
+结果如下，每一个都关联了两次。
+
+| account         | tableB\_account | id |
+|-----------------|-----------------|----|
+| 爱空间科技（北京）有限公司   | 爱空间科技\(北京\)有限公司 | 1  |
+| 爱空间科技（北京）有限公司   | 爱空间科技（北京）有限公司   | 28 |
+| 爱空间科技\(北京\)有限公司 | 爱空间科技\(北京\)有限公司 | 1  |
+| 爱空间科技\(北京\)有限公司 | 爱空间科技（北京）有限公司   | 28 |
+
+解决方法如下，
+
+``` sql
+select *
+from(
+	select '爱空间科技（北京）有限公司' as account
+	union ALL
+	select '爱空间科技(北京)有限公司' as account
+) a
+left join Dim_Account_Agent_Mapping daam
+on a.account = daam.account  collate Chinese_PRC_CI_AS_WS
+
+```
+
+| account         | tableB\_account | id |
+|-----------------|-----------------|----|
+| 爱空间科技（北京）有限公司   | 爱空间科技（北京）有限公司   | 28 |
+| 爱空间科技\(北京\)有限公司 | 爱空间科技\(北京\)有限公司 | 1  |
+
+
+在关联条件后增加 collate Chinese_PRC_CI_AS_WS ，需要注意的是，这个是要放到关联条件后的，放到语句的最后是不生效的。
+
+``` sql
+-- 错误示例
+select 
+*
+from Fact_Cost_Zhongmeng a
+left join Dim_Account_Agent_Mapping daam
+  on a.账户 = daam.account and a.日期 >= daam.start_date and a.日期 <= daam.end_date
+collate Chinese_PRC_CI_AS_WS 
+-- 正确示例
+select 
+*
+from Fact_Cost_Zhongmeng a
+left join Dim_Account_Agent_Mapping daam
+  on a.账户 = daam.account collate Chinese_PRC_CI_AS_WS 
+  and a.日期 >= daam.start_date and a.日期 <= daam.end_date
+
+``` 
