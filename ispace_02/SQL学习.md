@@ -59,8 +59,8 @@ drop table #t
 需要注意一下几点，@gs 变量的长度，一定要大于公式字段最长的长度。
 第二个需要注意的点是，存放结果的字段一定要是够大的浮点型，如果是使用数字新建的话，可用 100000.0000 代替。
 ``` sql
-	
-	--模拟数据 
+  
+  --模拟数据 
 IF OBJECT_ID('tempdb..#t')>0 DROP TABLE #t 
 
 SELECT 
@@ -113,7 +113,7 @@ a.store_no
 , 10000000000.0000 tt
 into #t
 FROM
-	Fact_Design_Case_Space a
+  Fact_Design_Case_Space a
 LEFT JOIN dim_03_stand_package b ON a.store_no = b.store_no  -- 关联标准套餐表，出来标准套餐所需要的施工项
 AND a.product_no = b.package_no
 AND a.space_no = b.space_no
@@ -122,7 +122,7 @@ ON b.work_item_no = c.work_item_no
 LEFT JOIN Fact_Design_House_Space_Goods d -- 根据城市-施工项-选材维度确定商品
 on a.store_no = d.store_no and b.work_item_no = d.work_item_no  and b.dimension_no  = d.dimension_no  
 WHERE
-	a.contract_no = 'DD20180602001060'
+  a.contract_no = 'DD20180602001060'
 
 --原始数据 
 SELECT * FROM #t 
@@ -185,9 +185,9 @@ select replace(cast(101.00000000 as varchar(100)),'.00000000','') store_no
 
 
 SELECT
-	a.*, count(1) AS rank
+  a.*, count(1) AS rank
 FROM
-	(select 1 as id,'aaa' as name ,1 as category_id union all
+  (select 1 as id,'aaa' as name ,1 as category_id union all
 select 2 as id,'bbb' as name ,2 as category_id union all
 select 3 as id,'ccc' as name ,1 as category_id union all
 select 4 as id,'ddd' as name ,2 as category_id union all
@@ -201,17 +201,17 @@ select 5 as id,'eee' as name ,1 as category_id
 ) b ON a.category_id = b.category_id
 AND a.id <= b.id
 GROUP BY
-	a.category_id,
-	a.id
+  a.category_id,
+  a.id
 ORDER BY
-	a.category_id,
-	a.id DESC
+  a.category_id,
+  a.id DESC
 
 
 SELECT
-	*
+  *
 FROM
-	(select 1 as id,'aaa' as name ,1 as category_id union all
+  (select 1 as id,'aaa' as name ,1 as category_id union all
 select 2 as id,'bbb' as name ,2 as category_id union all
 select 3 as id,'ccc' as name ,1 as category_id union all
 select 4 as id,'ddd' as name ,2 as category_id union all
@@ -226,8 +226,8 @@ select 5 as id,'eee' as name ,1 as category_id
 AND a.id >= b.id
 where a.category_id = 1
 GROUP BY
-	a.category_id,
-	a.id
+  a.category_id,
+  a.id
 
 ``` 
 # mysql分组后取组内某列最小（大）的行
@@ -254,8 +254,8 @@ group by user_id
 
 select user_id,orders_no from fact_decorate_order fdo
 left join (
-	select min(id) id from fact_decorate_order
-	group by user_id 
+  select min(id) id from fact_decorate_order
+  group by user_id 
 ) fdoId on fdo.id=fdoId.id
 where fdoId.id is not null 
 ```
@@ -266,11 +266,11 @@ mysql直接使用in (select user_id from table) 时效率会超级超级超级�
 select * 
 from table_A
 where user_id in (
-	select user_id
-	from (
-		select user_id 
-		from table_B
-	) temp
+  select user_id
+  from (
+    select user_id 
+    from table_B
+  ) temp
 )
 ```
 # mysql 大量数据关联查询
@@ -279,17 +279,17 @@ where user_id in (
 因此遇到那种百万级别的主表取进行关联的时候，可以分组进行关联。如下。
 
 ``` sql
-		WHILE i < num DO
+    WHILE i < num DO
 
-				insert into Fact_Decorate_Order_Std
-					SELECT
-					*
-				FROM	(select * from Fact_Decorate_Order where id >= i and id < i+100000) a 
-				LEFT JOIN T71 b ON a.user_id = b.user_id
-				LEFT JOIN T72 c ON a.orders_no = c.fk_docr_orders_no 
-				left join  T6 e on a.orders_no = e.orders_no -- 20190304 订单明细标准表增加调整的时间，之前只是用户穿刺表处理了时间
-				left join dim_01_contract_tag f
-				on a.orders_no = f.orders_no ;
+        insert into Fact_Decorate_Order_Std
+          SELECT
+          *
+        FROM  (select * from Fact_Decorate_Order where id >= i and id < i+100000) a 
+        LEFT JOIN T71 b ON a.user_id = b.user_id
+        LEFT JOIN T72 c ON a.orders_no = c.fk_docr_orders_no 
+        left join  T6 e on a.orders_no = e.orders_no -- 20190304 订单明细标准表增加调整的时间，之前只是用户穿刺表处理了时间
+        left join dim_01_contract_tag f
+        on a.orders_no = f.orders_no ;
 
         SET i = i + 100000 ;
 
@@ -300,29 +300,29 @@ where user_id in (
 # 同结构多关联查询问题
 
   我们的订单数据结构目前是以订单为核心的，所有阶段的时间都记录在一条信息上，这样的话如果我想要取用某天实际的各阶段的数据的时候，就需要每个阶段都建立一个查询，分别查出每个阶段需要使用的数据，然后关联在一起。
-  	实际使用过程中每次都需要关联表格效率太低，因此想做一张类似已经查询完的结果表的表放在那里，这样的话使用起来会比较方便。
-	在实际操作中遇到了一点疑问，就是每个阶段的维度不一定是相同的，我们需要取全连接的所有数据，并且把空的维度进行替换，两张表的时候没有任何问题，但是随着阶段的增多，当增加到三张表的时候就会出现问题，如果 a full join b full join c ，那么c的关联条件怎么做?
-	现阶段我能想到的解决办法就是  a先与b关联做出一个子查询然后和c关联。
+    实际使用过程中每次都需要关联表格效率太低，因此想做一张类似已经查询完的结果表的表放在那里，这样的话使用起来会比较方便。
+  在实际操作中遇到了一点疑问，就是每个阶段的维度不一定是相同的，我们需要取全连接的所有数据，并且把空的维度进行替换，两张表的时候没有任何问题，但是随着阶段的增多，当增加到三张表的时候就会出现问题，如果 a full join b full join c ，那么c的关联条件怎么做?
+  现阶段我能想到的解决办法就是  a先与b关联做出一个子查询然后和c关联。
 
 - 验证sql如下（sqlserver环境）
 ``` sql
 select 'A' as apt
-			,'甲' as name 
-			,1 as num_1
+      ,'甲' as name 
+      ,1 as num_1
 into temp_1
 
 insert into temp_1 values('B','乙',2);
 
 select 'B' as apt
-			,'乙' as name 
-			,3 as num_2
+      ,'乙' as name 
+      ,3 as num_2
 into temp_2
 
 insert into temp_2 values('C','丙',4);
 
 select 'C' as apt
-			,'丁' as name 
-			,5 as num_3
+      ,'丁' as name 
+      ,5 as num_3
 into temp_3
 
 insert into temp_3 values('D','戊',6);
@@ -335,17 +335,17 @@ full join temp_3 on temp_1.apt=temp_3.apt and temp_1.name=temp_3.name
 
 -- 现有方法
 select case when temp_1.apt is null then temp_3.apt else temp_1.apt end apt
-					,case when temp_1.name is null then temp_3.name else temp_1.name end name 
-					,temp_1.num_1
-					,temp_1.num_2 
-					,temp_3.num_3
+          ,case when temp_1.name is null then temp_3.name else temp_1.name end name 
+          ,temp_1.num_1
+          ,temp_1.num_2 
+          ,temp_3.num_3
 from 
 (
-		select case when temp_1.apt is null then temp_2.apt else temp_1.apt end apt
-					,case when temp_1.name is null then temp_2.name else temp_1.name end name 
-					,temp_1.num_1
-					,temp_2.num_2
-		from temp_1 full join temp_2 on temp_1.apt=temp_2.apt and temp_1.name=temp_2.name
+    select case when temp_1.apt is null then temp_2.apt else temp_1.apt end apt
+          ,case when temp_1.name is null then temp_2.name else temp_1.name end name 
+          ,temp_1.num_1
+          ,temp_2.num_2
+    from temp_1 full join temp_2 on temp_1.apt=temp_2.apt and temp_1.name=temp_2.name
 ) temp_1
 full join temp_3 on temp_1.apt=temp_3.apt and temp_1.name=temp_3.name 
 
@@ -398,27 +398,27 @@ WHERE cno LIKE ‘ee%’);
 -- 实际用到的子查询 实现了累加的功能  实际是一个相关子查询
 -- 在mysql中实现了累加
 SELECT
-	(
-		SELECT
-			sum(
+  (
+    SELECT
+      sum(
 
-				IF (
-					payment_category IN (6, 7, 11, 13),
-					payment_amount *- 1,
-					payment_amount
-				)
-			)
-		FROM
-			decorate_order_pay b
-		WHERE
-			b.orders_no = a.orders_no
-		AND b.id * 1 <= a.id * 1
-	) sumnum,
-	a.*
+        IF (
+          payment_category IN (6, 7, 11, 13),
+          payment_amount *- 1,
+          payment_amount
+        )
+      )
+    FROM
+      decorate_order_pay b
+    WHERE
+      b.orders_no = a.orders_no
+    AND b.id * 1 <= a.id * 1
+  ) sumnum,
+  a.*
 FROM
-	decorate_order_pay a
+  decorate_order_pay a
 WHERE
-	orders_no = 'DD20181202000485'
+  orders_no = 'DD20181202000485'
  ```
 sqlserver中实现分组累加要方便许多。有函数可以直接使用。
 
@@ -443,11 +443,11 @@ DECLARE @i int
 DECLARE @area VARCHAR (10)
 set @i = 0
 SET @area = 'area' -- 创建游标
-DECLARE area_cursor CURSOR FOR (		select 'bj' as area union		select 'sh' as area union		select 'sz' as area union		select 'szh' as area union		select 'cd' as area union		select 'tj' as area union		select 'ty' as area union		select 'gz' as area union		select 'gy' as area union		select 'wh' as area union		select 'jn' as area union		select 'xa' as area union		select 'lf' as area union		select 'zz' as area union		select 'nj' as area union		select 'nc' as area 
+DECLARE area_cursor CURSOR FOR (    select 'bj' as area union   select 'sh' as area union   select 'sz' as area union   select 'szh' as area union    select 'cd' as area union   select 'tj' as area union   select 'ty' as area union   select 'gz' as area union   select 'gy' as area union   select 'wh' as area union   select 'jn' as area union   select 'xa' as area union   select 'lf' as area union   select 'zz' as area union   select 'nj' as area union   select 'nc' as area 
 ) --打开游标--
 OPEN area_cursor 
 --开始循环游标变量--
-FETCH NEXT FROM	area_cursor INTO @area
+FETCH NEXT FROM area_cursor INTO @area
 
 
 -- 创建临时表
@@ -459,39 +459,39 @@ source_no nvarchar(10)
 )
 
 WHILE @@FETCH_STATUS = 0 --返回被 FETCH语句执行的最后游标的状态--
-	BEGIN
-		insert into #stand_url_temp
-			select REPLACE(entry_url, '*',@area) ,source_no from (
-					select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
-					select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
-					select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
-					select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
-					select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
-					select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
-					select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
-					select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
-					select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
-					select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
-					select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
-					select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
-					select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
-					select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
-					select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
-					select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
-					select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
-					select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
-					select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
-		) stand_url
-			where entry_url like '%*%'
+  BEGIN
+    insert into #stand_url_temp
+      select REPLACE(entry_url, '*',@area) ,source_no from (
+          select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
+          select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
+          select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
+          select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
+          select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
+          select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
+          select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
+          select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
+          select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
+          select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
+          select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
+          select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
+          select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
+          select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
+          select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
+          select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
+          select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
+          select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
+          select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
+    ) stand_url
+      where entry_url like '%*%'
 
-	FETCH NEXT	FROM		area_cursor INTO @area --转到下一个游标，没有会死循环
-	END 
+  FETCH NEXT  FROM    area_cursor INTO @area --转到下一个游标，没有会死循环
+  END 
 
 CLOSE area_cursor --关闭游标
 DEALLOCATE area_cursor --释放游标
@@ -499,31 +499,31 @@ DEALLOCATE area_cursor --释放游标
 insert into  #stand_url_temp
 select entry_url,source_no
 from (
-	select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
-	select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
-	select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
-	select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
-	select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
-	select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
-	select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
-	select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
-	select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
-	select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
-	select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
-	select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
-	select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
-	select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
-	select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
-	select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
-	select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
-	select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
-	select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
+  select 'http://*.ikongjian.com/' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/reservation/index%' as entry_url,'790001' as source_no union
+  select 'http://m.ikongjian.com/*/reservation/index%' as entry_url,'790002' as source_no union
+  select 'http://m.ikongjian.com/' as entry_url,'790002' as source_no union
+  select 'http://m.ikongjian.com/*/' as entry_url,'790002' as source_no union
+  select 'https://m.ikongjian.com/*/changeCity' as entry_url,'790002' as source_no union
+  select 'https://m.ikongjian.com/*/liveOffice/%' as entry_url,'790002' as source_no union
+  select 'http://*.ikongjian.com/liveOffice/%' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/construction/' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/hotHouse/index' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/cooperation/tequan' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/kujiale/p/index' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/news/%' as entry_url,'790001' as source_no union
+  select 'http://*.ikongjian.com/case/%' as entry_url,'310101' as source_no union
+  select 'http://www.ikongjian.com/zixun/%' as entry_url,'310101' as source_no union
+  select 'http://www.ikongjian.com/wen/%' as entry_url,'310101' as source_no union
+  select 'http://www.ikongjian.com/tu/%' as entry_url,'310101' as source_no union
+  select 'https://m.ikongjian.com/zixun/%' as entry_url,'310102' as source_no union
+  select 'https://m.ikongjian.com/wen/%' as entry_url,'310102' as source_no union
+  select 'https://m.ikongjian.com/tu/%' as entry_url,'310102' as source_no union
+  select 'https://m.ikongjian.com/*/case/%' as entry_url,'310102' as source_no union
+  select 'http://m.ikongjian.com/*/ikj/%' as entry_url,'790003' as source_no union
+  select 'https://*.ikongjian.com/ikj/%' as entry_url,'790003' as source_no union
+  select 'https://m.ikongjian.com/*/activitys/%' as entry_url,'790003' as source_no union
+  select 'https://*.ikongjian.com/ activitys/%' as entry_url,'790003' as source_no 
 ) stand_url
 where entry_url not like '%*%'
 
@@ -598,21 +598,21 @@ sqlserver下语句如下。
 ``` 
 # mysql 实现累加
 ``` sql
-		select 
-			(select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) CUSUM
-			-- 2019年8月8日 shg 以下为 累加字段的标记字段，用作后续判断
-			,if((select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1)>=500,1,0) CUSUM_sign
-			-- 2019年11月19日 shg  之前的判断逻辑有误，会取到首次交钱不满500的作为首次退订至不满五百的时间。
-			-- 新增交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) < 500   & 回款明细当前余额 >=500
-			-- 新减交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) >= 500   & 回款明细当前余额 >500
-			,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) < 500 and
-			 (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) >= 500 then 1 else 0 end  as new_payment_state
-			,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) >= 500 and
-			 (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) < 500 then 1 else 0 end  as new_un_payment_state
-			,a.*
-		from www.decorate_order_pay  a
-		-- where orders_no = 'DD20180518000839'
-		order by orders_no,create_time 
+    select 
+      (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) CUSUM
+      -- 2019年8月8日 shg 以下为 累加字段的标记字段，用作后续判断
+      ,if((select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1)>=500,1,0) CUSUM_sign
+      -- 2019年11月19日 shg  之前的判断逻辑有误，会取到首次交钱不满500的作为首次退订至不满五百的时间。
+      -- 新增交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) < 500   & 回款明细当前余额 >=500
+      -- 新减交定数：期初金额=(回款明细当前余额 减 回款明细当前金额 ) >= 500   & 回款明细当前余额 >500
+      ,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) < 500 and
+       (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) >= 500 then 1 else 0 end  as new_payment_state
+      ,case when (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) - if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount) >= 500 and
+       (select sum(if(payment_category in (6,7,11,13),payment_amount*-1,payment_amount)) from www.decorate_order_pay b where b.orders_no = a.orders_no and b.id*1<=a.id*1) < 500 then 1 else 0 end  as new_un_payment_state
+      ,a.*
+    from www.decorate_order_pay  a
+    -- where orders_no = 'DD20180518000839'
+    order by orders_no,create_time 
 
 ```
 # sql关联的附表的过滤
@@ -635,33 +635,33 @@ where user_id = '1043087'
 ```
 ALTER PROCEDURE [dbo].[PF_ETL_Clear_TempTable]
 AS
-BEGIN	
+BEGIN 
 
-	DECLARE @name VARCHAR(100)
-	DECLARE @sql VARCHAR(MAX) 
+  DECLARE @name VARCHAR(100)
+  DECLARE @sql VARCHAR(MAX) 
 
-	DECLARE TableNameCursor CURSOR FOR 
-	SELECT NAME FROM SYSOBJECTS WHERE XTYPE='U' and name like 'BI%' ORDER BY NAME
-	
-	-- 打开游标 
-	OPEN TableNameCursor
-	fetch next from TableNameCursor into @name 
-	WHILE @@fetch_status = 0 
-	BEGIN
-	
-		set @sql = 'drop table '+@name
-		print @sql
-		exec(@sql)
-		fetch next from TableNameCursor into @name 
+  DECLARE TableNameCursor CURSOR FOR 
+  SELECT NAME FROM SYSOBJECTS WHERE XTYPE='U' and name like 'BI%' ORDER BY NAME
+  
+  -- 打开游标 
+  OPEN TableNameCursor
+  fetch next from TableNameCursor into @name 
+  WHILE @@fetch_status = 0 
+  BEGIN
+  
+    set @sql = 'drop table '+@name
+    print @sql
+    exec(@sql)
+    fetch next from TableNameCursor into @name 
 
-	END
+  END
 
-	
-	-- 关闭游标
-	CLOSE TableNameCursor
-	deallocate TableNameCursor 
+  
+  -- 关闭游标
+  CLOSE TableNameCursor
+  deallocate TableNameCursor 
 
-	-- drop table BI_1_1_G1_120900029263CE
+  -- drop table BI_1_1_G1_120900029263CE
 END
 ```
 
@@ -700,15 +700,15 @@ END
   WITH AS短语，也叫做子查询部分（subquery factoring），可以让你做很多事情，定义一个SQL片断，该SQL片断会被整个SQL语句所用到。有的时候，是为了让SQL语句的可读性更高些，也有可能是在UNION ALL的不同部分，作为提供数
 据的部分
   在学习hive的过程中，别人的代码里面用到了 with as ，此语法为 sql 通用语法，实际上就是子查询，但是当子查询过多的时候方便管理，示例如下。
-	https://www.cnblogs.com/zsan/p/8655456.html
-	
+  https://www.cnblogs.com/zsan/p/8655456.html
+  
 ``` sql
 with 
 t1 AS (
-	select 1001 as no,'zhang' as name 
+  select 1001 as no,'zhang' as name 
 ),
 t2 AS (
-	select 1001 as no,'sale' as dept 
+  select 1001 as no,'sale' as dept 
 )
 select * from t1 left join t2 on t1.no = t2.no
 
@@ -721,9 +721,9 @@ select * from t1 left join t2 on t1.no = t2.no
 ``` sql
 select *
 from(
-	select '爱空间科技（北京）有限公司' as account
-	union ALL
-	select '爱空间科技(北京)有限公司' as account
+  select '大宝v974（北京）有限公司' as account
+  union ALL
+  select '大宝v974(北京)有限公司' as account
 ) a
 left join Dim_Account_Agent_Mapping daam
 on a.account = daam.account 
@@ -733,19 +733,19 @@ on a.account = daam.account
 
 | account         | tableB\_account | id |
 |-----------------|-----------------|----|
-| 爱空间科技（北京）有限公司   | 爱空间科技\(北京\)有限公司 | 1  |
-| 爱空间科技（北京）有限公司   | 爱空间科技（北京）有限公司   | 28 |
-| 爱空间科技\(北京\)有限公司 | 爱空间科技\(北京\)有限公司 | 1  |
-| 爱空间科技\(北京\)有限公司 | 爱空间科技（北京）有限公司   | 28 |
+| 大宝v974（北京）有限公司   | 大宝v974\(北京\)有限公司 | 1  |
+| 大宝v974（北京）有限公司   | 大宝v974（北京）有限公司   | 28 |
+| 大宝v974\(北京\)有限公司 | 大宝v974\(北京\)有限公司 | 1  |
+| 大宝v974\(北京\)有限公司 | 大宝v974（北京）有限公司   | 28 |
 
 解决方法如下，
 
 ``` sql
 select *
 from(
-	select '爱空间科技（北京）有限公司' as account
-	union ALL
-	select '爱空间科技(北京)有限公司' as account
+  select '大宝v974（北京）有限公司' as account
+  union ALL
+  select '大宝v974(北京)有限公司' as account
 ) a
 left join Dim_Account_Agent_Mapping daam
 on a.account = daam.account  collate Chinese_PRC_CI_AS_WS
@@ -754,8 +754,8 @@ on a.account = daam.account  collate Chinese_PRC_CI_AS_WS
 
 | account         | tableB\_account | id |
 |-----------------|-----------------|----|
-| 爱空间科技（北京）有限公司   | 爱空间科技（北京）有限公司   | 28 |
-| 爱空间科技\(北京\)有限公司 | 爱空间科技\(北京\)有限公司 | 1  |
+| 大宝v974（北京）有限公司   | 大宝v974（北京）有限公司   | 28 |
+| 大宝v974\(北京\)有限公司 | 大宝v974\(北京\)有限公司 | 1  |
 
 
 在关联条件后增加 collate Chinese_PRC_CI_AS_WS ，需要注意的是，这个是要放到关联条件后的，放到语句的最后是不生效的。
@@ -777,3 +777,23 @@ left join Dim_Account_Agent_Mapping daam
   and a.日期 >= daam.start_date and a.日期 <= daam.end_date
 
 ``` 
+# sqlserver 字符串处理
+
+``` sql
+SELECT
+	reverse(
+		SUBSTRING (
+			reverse(
+				'今日头条_20200407_爱空间科技（北京）有限公司-橙乐1'
+			),
+			0,
+			charindex(
+				'_',
+				reverse(
+					'今日头条_20200407_爱空间科技（北京）有限公司-橙乐1'
+				)
+			)
+		)
+	) -- 先倒序，倒过来之后取开始到首次出现下划线的位置，再将结果倒叙
+
+```
