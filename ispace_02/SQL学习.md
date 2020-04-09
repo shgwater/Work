@@ -797,4 +797,25 @@ SELECT
 	) -- 先倒序，倒过来之后取开始到首次出现下划线的位置，再将结果倒叙
 
 -- 结果为  爱空间科技（北京）有限公司-橙乐1
+-- 另外一种做法
+SUBSTRING (
+	reverse(
+		SUBSTRING (
+			reverse(今日头条_20200407_爱空间科技（北京）有限公司-橙乐1.xlsx),
+			0,
+			charindex('_', reverse(今日头条_20200407_爱空间科技（北京）有限公司-橙乐1.xlsx))
+		)
+	),
+	0,
+	charindex(
+		'.xlsx',
+		reverse(
+			SUBSTRING (
+				reverse(今日头条_20200407_爱空间科技（北京）有限公司-橙乐1.xlsx),
+				0,
+				charindex('_', reverse(今日头条_20200407_爱空间科技（北京）有限公司-橙乐1.xlsx))
+			)
+		)
+	)
+) AS account
 ```
