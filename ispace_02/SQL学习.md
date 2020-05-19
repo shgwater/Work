@@ -821,6 +821,7 @@ SUBSTRING (
 ```
 
 # SQL窗口函数
+引用自[原文地址](https://zhuanlan.zhihu.com/p/92654574)
 
 ## 一、窗口函数有什么用？
 
