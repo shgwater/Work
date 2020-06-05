@@ -1118,3 +1118,13 @@ select '0004' as id , '1' as cla, 83 as score
 
 >排名问题：每个部门按业绩来排名
 >topN问题：找出每个部门排名前N的员工进行奖励
+
+
+# 条件过滤时注意null
+
+如果条件判断为 <> 时，sql会默认把null也过滤掉，因此在写过滤条件的时候需要把null的部分也增加上。
+``` sql
+select * 
+from table 
+where col1 <> 'conditions' or col1 is null 
+```
