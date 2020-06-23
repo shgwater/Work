@@ -1135,4 +1135,79 @@ where col1 <> 'conditions' or col1 is null
 如果度量维度上有null的话，参与计算的含有null的度量会导致计算结果为null。
 
 以下为sqlserver中的实例。
+``` sql
+-- full join 时关联条件为null的验证语句
+
+select * from 
+
+(
+select '101' as area_code, '北京体验店' as group_name
+union
+select '102' as area_code, '天津体验店' as group_name
+union
+select '103' as area_code, '廊坊体验店' as group_name
+union
+select null as area_code, '济南体验店' as group_name
+union
+select '' as area_code, '南昌体验店' as group_name
+
+
+) a
+full join 
+(
+select '101' as area_code, '北京体验店' as group_name
+union
+select '102' as area_code, '天津体验店' as group_name
+union
+select '103' as area_code, '廊坊体验店' as group_name
+union
+select null as area_code, '济南体验店' as group_name
+union
+select '' as area_code, '南昌体验店' as group_name
+
+) b on a.area_code = b.area_code and a.group_name = b.group_name 
+
+```
+| area\_code | group\_name | area\_code1 | group\_\_name1 |
+|------------|-------------|-------------|----------------|
+| null       | null        | null        | 济南体验店          |
+|            | 南昌体验店       |             | 南昌体验店          |
+| 101        | 北京体验店       | 101         | 北京体验店          |
+| 102        | 天津体验店       | 102         | 天津体验店          |
+| 103        | 廊坊体验店       | 103         | 廊坊体验店          |
+| null       | 济南体验店       | null        | null           |
+
+``` sql
+select 
+a.id
+,a.num1*b.NUM2
+,a.num1+b.NUM2
+from 
+(
+select '001' as id ,null as NUM1
+union 
+select '002' as id ,100 as NUM1
+) a
+left join 
+(
+select '001' as id ,2 as NUM2
+union 
+select '002' as id ,200 as NUM2
+) b on a.id = b.id 
+
+```
+
+| id  | num1  | num2 |
+|-----|-------|------|
+| 001 | null  | null |
+| 002 | 20000 | 300  |
+
+# 索引是建的越多越好吗
+
+- 答案自然是否定的数据量小的表不需要建立索引，建立会增加额外的索引开销
+- 不经常引用的列不要建立索引，因为不常用，即使建立了索引也没有多大意义
+- 经常频繁更新的列不要建立索引，因为肯定会影响插入或更新的效率
+- 数据重复且分布平均的字段，因此他建立索引就没有太大的效果（例如性别字段，只有男女，不适合建立索引）
+- 数据变更需要维护索引，意味着索引越多维护成本越高。
+- 更多的索引也需要更多的存储空间
 
