@@ -1128,3 +1128,11 @@ select *
 from table 
 where col1 <> 'conditions' or col1 is null 
 ```
+
+# 数仓表中最好不要有null
+
+如果维度列上有null的话，多表关联时会出现重复列。
+如果度量维度上有null的话，参与计算的含有null的度量会导致计算结果为null。
+
+以下为sqlserver中的实例。
+
