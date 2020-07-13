@@ -1211,3 +1211,79 @@ select '002' as id ,200 as NUM2
 - 数据变更需要维护索引，意味着索引越多维护成本越高。
 - 更多的索引也需要更多的存储空间
 
+# sql分组汇总字符串
+
+## mysql
+
+mysql中有此函数：
+``` sql
+select 
+buyer_id
+,group_concat(query)  
+from order_source 
+where query !="" 
+group by buyer_id ;
+```
+buyer_id | query                                                                                                                                       
++----------+--------------------------------
+|   757069 | 纸品,斜挂包女
+# sqlserver
+
+sqlserver中无可直接使用的自带函数，需要自建函数。
+``` sql
+如下表:AggregationTableId    Name    
+1    赵    
+2    钱    
+1    孙    
+1    李    
+2    周    
+如果想得到下图的聚合结果
+Id    Name    
+1    赵孙李bai    
+2    钱周du    
+利用SUM、AVG、COUNT、COUNT(*)、MAX 和 MIN是无法做到的。因为这些都是对数值的聚合。不过我们可以通过自定义函数的方式来解决这个问题。
+1.首先建立测试表，并插入测试数据： 
+复制代码代码如下:
+ 
+create table AggregationTable(Id int, [Name] varchar(10)) 
+go 
+insert into AggregationTable 
+    select 1,'赵' union all 
+    select 2,'钱' union all 
+    select 1,'孙' union all 
+    select 1,'李' union all 
+    select 2,'周' 
+go
+ 
+2.创建自定义字符串聚合函数
+复制代码代码如下:
+ 
+Create FUNCTION AggregateString 
+( 
+    @Id int 
+) 
+RETURNS varchar(1024) 
+AS 
+BEGIN 
+    declare @Str varchar(1024) 
+    set @Str = '' 
+    select @Str = @Str + [Name] from AggregationTable 
+    where [Id] = @Id 
+    return @Str 
+END 
+GO
+ 
+3.执行下面的语句，并查看结果 
+复制代码代码如下:
+ 
+select dbo.AggregateString(Id),Id from AggregationTable 
+group by Id 
+ 
+ 
+结果为：
+ 
+Id    Name    
+1    赵孙李    
+2    钱周
+```
+
