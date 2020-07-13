@@ -1307,7 +1307,7 @@ goods.goods表中有这样一条记录
 | 10010784  | 4                 |
 | 10010784  | 5                 |
 | 10010784  | 7                 |
-
+| 10010784  | 9                 |
 sql实现
 ``` sql
 
@@ -1317,7 +1317,7 @@ select goods_no
 
 from goods.goods as gg
 
-join mysql.help_topic as mht on mht.help_topic_id < (length(gg.goods_work_type) - length(replace(gg.goods_work_type,',','')+1))
+join mysql.help_topic as mht on mht.help_topic_id <= (length(gg.goods_work_type) - length(replace(gg.goods_work_type,',','')))
 
 where gg.goods_no = '10010784'
 
@@ -1335,5 +1335,7 @@ mysql.help_topic： help_topic_id 共有504个数值 它们是mysql内部的连�
 | 10010784  | 3               | 1,2,3,4,5,7,9     |
 | 10010784  | 4               | 1,2,3,4,5,7,9     |
 | 10010784  | 5               | 1,2,3,4,5,7,9     |
-
+| 10010784  | 6               | 1,2,3,4,5,7,9     |
 然后使用字符串函数根据每一行的id获取对应位置的想要拆分出来的字符。
+
+需要注意的是，此辅助表是从0开始的，要注意字符串函数中各参数的实际值，并且要注意测试。
