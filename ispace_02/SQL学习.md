@@ -1287,3 +1287,53 @@ Id    Name    
 2    钱周
 ```
 
+# 字段分割字符串（ 一行转多行 ）
+
+## Mysql中字段分割字符串（ 一行转多行 ）
+
+goods.goods表中有这样一条记录
+
+| goods_no | goods_work_type |
+| --- | --- |
+|  10010784   |   1,2,3,4,5,7,9  |	
+
+需要的结果
+
+| goods\_no | goods\_work\_type |
+|-----------|-------------------|
+| 10010784  | 1                 |
+| 10010784  | 2                 |
+| 10010784  | 3                 |
+| 10010784  | 4                 |
+| 10010784  | 5                 |
+| 10010784  | 7                 |
+
+sql实现
+``` sql
+
+select goods_no
+
+,substring_index(substring_index(goods_work_type,',',mht.help_topic_id+1),',',-1)
+
+from goods.goods as gg
+
+join mysql.help_topic as mht on mht.help_topic_id < (length(gg.goods_work_type) - length(replace(gg.goods_work_type,',','')+1))
+
+where gg.goods_no = '10010784'
+
+```
+mysql.help_topic： help_topic_id 共有504个数值 它们是mysql内部的连续数列表，连续数列的最大值一定要大于符合分割的值的个数。
+实际上就是一张自带的辅助表。
+
+整个sql的实现思路如下：
+首先关联辅助表，让一行变为 分隔符数量+1行。此时数据如下：
+| goods\_no | help\_topic\_id | goods\_work\_type |
+|-----------|-----------------|-------------------|
+| 10010784  | 0               | 1,2,3,4,5,7,9     |
+| 10010784  | 1               | 1,2,3,4,5,7,9     |
+| 10010784  | 2               | 1,2,3,4,5,7,9     |
+| 10010784  | 3               | 1,2,3,4,5,7,9     |
+| 10010784  | 4               | 1,2,3,4,5,7,9     |
+| 10010784  | 5               | 1,2,3,4,5,7,9     |
+
+然后使用字符串函数根据每一行的id获取对应位置的想要拆分出来的字符。
