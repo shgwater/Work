@@ -1339,3 +1339,20 @@ mysql.help_topic： help_topic_id 共有504个数值 它们是mysql内部的连�
 然后使用字符串函数根据每一行的id获取对应位置的想要拆分出来的字符。
 
 需要注意的是，此辅助表是从0开始的，要注意字符串函数中各参数的实际值，并且要注意测试。
+
+
+# SqlServer 中删除表
+
+## 正常表
+``` sql
+-- 创建订单链接页面表
+ if exists (select * from sys.objects where name= 'table DIM_ORDER_PAGE' and type='U')
+drop table DIM_ORDER_PAGE
+```
+
+## 临时表
+``` sql
+-- 得到所有的需要判断的链接
+ if EXISTS (select * from SYSOBJECTS WHERE NAME  = '#stand_url')
+drop table #stand_url 
+```
