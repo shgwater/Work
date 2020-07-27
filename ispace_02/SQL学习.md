@@ -174,6 +174,68 @@ left join Fact_Sale_price b
 on a.store_no=b.store_no and a.goods_no = b.goods_no
 
 ```
+
+## 两种动态计算
+使用exec和sp_executesql动态执行SQL语句（转载）
+当需要根据外部输入的参数来决定要执行的SQL语句时，常常需要动态来构造SQL查询语句，个人觉得用得比较多的地方就是分页存储过程和执行搜索查询的SQL语句。一个比较通用的分页存储过程，可能需要传入表名，字段，过滤条件，排序等参数，而对于搜索的话，可能要根据搜索条件判断来动态执行SQL语句。
+
+在SQL Server中有两种方式来执行动态SQL语句，分别是exec和sp_executesql。sp_executesql相对而言具有更多的优点，它提供了输入输出接口，可以将输入输出变量直接传递到SQL语句中，而exec只能通过拼接的方式来实现。还有一个优点就是sp_executesql，能够重用执行计划，这就大大提高了执行的性能。所以一般情况下建议选择sp_executesql来执行动态SQL语句。
+
+使用sp_executesql需要注意的一点就是，它后面执行的SQL语句必须是Unicode编码的字符串，所以在声明存储动态SQL语句的变量时必须声明为nvarchar类型（如果不知道SQL语句有多长，可以直接用nvarchar(max)类型），否则在执行的时候会报“过程需要类型为 'ntext/nchar/nvarchar' 的参数 '@statement'”的错误，如果是使用sp_executesql直接执行SQL语句，则必须在前面加上大写字母N，以表明后面的字符串是使用Unicode类型编码的。
+
+下面来看看几种动态执行SQL语句的情况
+
+**1.普通SQL语句**
+``` sql
+exec('select * from Student')
+exec sp_executesql N'select * from Student'--此处一定要加上N，否则会报错
+```
+
+**2.带参数的SQL语句**
+
+``` sql
+declare @sql nvarchar(1000)
+declare @userId varchar(100)
+set @userId='0001'
+set @sql='select * from Student where UserID='''+@userId+''''
+exec(@sql)
+```
+``` sql
+declare @sql nvarchar(1000)
+declare @userId varchar(100)
+set @userId='0001'
+set @sql=N'select * from Student where UserID=@userId'
+exec sp_executesql @sql,N'@userId varchar(100)',@userId
+```
+从这个例子中可以看出使用sp_executesql可以直接将参数写在sql语句中，而exec需要使用拼接的方式，这在一定程度上可以防止SQL注入，因此sp_executesql拥有更高的安全性。另外需要注意的是，存储sql语句的变量必须声明为nvarchar类型的。
+
+
+
+**3.带输出参数的SQL语句**
+
+
+``` sql
+create procedure [dbo].[sp_GetNameByUserId]
+(
+    @userId varchar(100),
+    @userName varchar(100) output
+)
+as
+begin
+
+    declare @sql nvarchar(1000)
+    set @sql=N'select @userName=UserName from Student where UserId=@userId'
+    exec sp_executesql @sql,N'@userId varchar(100),@userName varchar(100) output',@userId,@userName output
+    select @userName
+
+end
+```
+
+
+
+
+
+
 # sqlserver decimal转为varchar
 因为 decimal 格式的有小数位，cast 函数只能将他变成 10.0000 的形式，因此还需要替换掉的后面的。
 ``` sql
