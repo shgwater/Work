@@ -230,8 +230,26 @@ begin
 
 end
 ```
+**4.将执行的sql结果传出来**
+``` sql
+declare @sql nvarchar(2000) 
+declare @cou int 
+declare @id varchar(20) 
+set @id='101' 
+set @sql='select @count=count(*) from dim_area where area_code=@id' 
+exec sp_executesql @sql, N'@count int out,@id varchar(20)', @cou out ,@id 
+print @cou 
 
 
+```
+注意： 
+１.sp_executesql要求动态Sql和动态Sql参数列表必须是Nvarchar，比如上个例子的@sql,N'@count int out,@id varchar(20)'我记得在sql2005中Varchar也可以的，但是我打了Sp3补丁后就不行了，必须为Nvarchar 
+２.动态Sql的参数列表与外部提供值的参数列表顺序必需一致，如： 
+N'@count int out,@id varchar(20)', @cou out,@id 
+@count 对应 @cou,@id对应@id 
+如果不一致，必须显式标明，如： 
+N'@count int out,@id varchar(20)', @id＝@id, @count=@cou out 
+３.动态SQl的参数列表与外部提供参数的参数列表参数名可以同名
 
 
 
