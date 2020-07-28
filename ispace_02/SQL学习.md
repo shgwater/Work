@@ -243,13 +243,26 @@ print @cou
 
 ```
 注意： 
-１.sp_executesql要求动态Sql和动态Sql参数列表必须是Nvarchar，比如上个例子的@sql,N'@count int out,@id varchar(20)'我记得在sql2005中Varchar也可以的，但是我打了Sp3补丁后就不行了，必须为Nvarchar 
-２.动态Sql的参数列表与外部提供值的参数列表顺序必需一致，如： 
+1. sp_executesql要求动态Sql和动态Sql参数列表必须是Nvarchar，比如上个例子的@sql,N'@count int out,@id varchar(20)'我记得在sql2005中Varchar也可以的，但是我打了Sp3补丁后就不行了，必须为Nvarchar 
+2. 动态Sql的参数列表与外部提供值的参数列表顺序必需一致，如： 
 N'@count int out,@id varchar(20)', @cou out,@id 
 @count 对应 @cou,@id对应@id 
 如果不一致，必须显式标明，如： 
 N'@count int out,@id varchar(20)', @id＝@id, @count=@cou out 
-３.动态SQl的参数列表与外部提供参数的参数列表参数名可以同名
+3. 动态SQl的参数列表与外部提供参数的参数列表参数名可以同名
+**4. 如果参数是表名、group by 的参数的话，需要放在外面。否则会报错**
+``` 
+Procedure execution failed
+42000 - [SQL Server]Must declare the table variable "@id".
+
+查询时间: 00:00.07
+```
+```sql
+set @sql='select @count=count(*) from dim_area where area_code='+@id
+```
+详细解析见：
+https://blog.csdn.net/hisense20112784/article/details/72884516
+
 
 
 
