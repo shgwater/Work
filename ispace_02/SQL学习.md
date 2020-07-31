@@ -263,6 +263,50 @@ set @sql='select @count=count(*) from dim_area where area_code='+@id
 详细解析见：
 https://blog.csdn.net/hisense20112784/article/details/72884516
 
+## 重复数据检查
+
+``` sql
+DECLARE @start_num int,@end_num int ,@cou int
+DECLARE @table_name nvarchar(100),@primary_column nvarchar(100)
+DECLARE @sql nvarchar(MAX)
+
+
+-- 创建临时表并排序
+IF OBJECT_ID('tempdb..#fuc')>0 DROP TABLE #fuc
+SELECT ROW_NUMBER()OVER(ORDER BY table_name) rowid 
+	,table_name 
+	,primary_column
+INTO #fuc
+FROM Fact_Uniqueness_Check
+
+
+select @start_num=min(rowid), @end_num = max(rowid) from #fuc
+
+while(@start_num<=@end_num)
+begin
+    
+	select @table_name=table_name,@primary_column=primary_column from #fuc where rowid = @start_num
+
+	set @sql='select @count=count(1) from (select @primary_column as t_col from '+@table_name+' group by '+@primary_column+' HAVING count(1) > 1) a'
+	exec sp_executesql @sql, N'@count int out, @table_name nvarchar(100),@primary_column nvarchar(100)',@cou out,@table_name,@primary_column
+
+	if @cou = 0
+			begin
+					exec('update Fact_Uniqueness_Check set state = ''不重复'' where table_name = '''+@table_name+''''  )
+					exec('update Fact_Uniqueness_Check set check_date = getdate() where table_name = '''+@table_name+''''  )
+			end 
+			else 
+			begin
+					exec('update Fact_Uniqueness_Check set state = ''有重复'' where table_name = '''+@table_name+''''  )
+					exec('update Fact_Uniqueness_Check set check_date = getdate() where table_name = '''+@table_name+''''  )
+			end
+
+	set @start_num = @start_num + 1
+
+end
+
+
+```
 
 
 
