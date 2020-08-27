@@ -1493,3 +1493,86 @@ drop table DIM_ORDER_PAGE
  if EXISTS (select * from SYSOBJECTS WHERE NAME  = '#stand_url')
 drop table #stand_url 
 ```
+
+# Sqlserver 中列转行  PIVOT函数
+
+## UNPIVOT 列转行函数
+
+> UNPIVOT([转换为行的列值在转换后对应的列名] for [转换为行的列名在转换后对应的列名] in ([转换为行的列1],[转换为行的列2],[转换为行的列3],...[转换为行的列N]))
+
+- [转换为行的列值在转换后对应的列名]这个是进行列转行的列其数据值在转换为行后的列名称
+- [转换为行的列名在转换后对应的列名]这个是进行列转行的列其列名在转换为行后的列名称
+- [转换为行的列]这个是声明哪些列要进行列转行
+
+eg.
+
+``` sql
+select *
+from 
+(
+select '总部' as city, 13 as num,  85 as money,  21 as day_num union
+select '北京' as city, 86 as num,  80 as money,  62 as day_num union
+select '天津' as city, 59 as num,  54 as money,  36 as day_num union
+select '廊坊' as city, 27 as num,  61 as money,  69 as day_num union
+select '太原' as city, 20 as num,  49 as money,  13 as day_num union
+select '成都' as city, 78 as num,  48 as money,  26 as day_num union
+select '昆明' as city, 89 as num,  23 as money,  92 as day_num union
+select '重庆' as city, 67 as num,  97 as money,  53 as day_num union
+select '贵阳' as city, 31 as num,  70 as money,  97 as day_num union
+select '上海' as city, 40 as num,  33 as money,  20 as day_num union
+select '济南' as city, 98 as num,  61 as money,  80 as day_num union
+select '杭州' as city, 58 as num,  18 as money,  89 as day_num union
+select '南昌' as city, 15 as num,  51 as money,  44 as day_num 
+
+) as a
+UNPIVOT(val for num_type in (num,money,day_num)) as t
+
+```
+结果如下：
+
+| city | val | num_type |
+|----|----|----------|
+| 北京 | 86 | num      |
+| 北京 | 80 | money    |
+| 北京 | 62 | day\_num |
+| 成都 | 78 | num      |
+| 成都 | 48 | money    |
+| 成都 | 26 | day\_num |
+| 贵阳 | 31 | num      |
+| 贵阳 | 70 | money    |
+| 贵阳 | 97 | day\_num |
+| 杭州 | 58 | num      |
+| 杭州 | 18 | money    |
+| 杭州 | 89 | day\_num |
+| 济南 | 98 | num      |
+| 济南 | 61 | money    |
+| 济南 | 80 | day\_num |
+| 昆明 | 89 | num      |
+| 昆明 | 23 | money    |
+| 昆明 | 92 | day\_num |
+| 廊坊 | 27 | num      |
+| 廊坊 | 61 | money    |
+| 廊坊 | 69 | day\_num |
+| 南昌 | 15 | num      |
+| 南昌 | 51 | money    |
+| 南昌 | 44 | day\_num |
+| 上海 | 40 | num      |
+| 上海 | 33 | money    |
+| 上海 | 20 | day\_num |
+| 太原 | 20 | num      |
+| 太原 | 49 | money    |
+| 太原 | 13 | day\_num |
+| 天津 | 59 | num      |
+| 天津 | 54 | money    |
+| 天津 | 36 | day\_num |
+| 重庆 | 67 | num      |
+| 重庆 | 97 | money    |
+| 重庆 | 53 | day\_num |
+| 总部 | 13 | num      |
+| 总部 | 85 | money    |
+| 总部 | 21 | day\_num |
+
+
+使用时需要注意以下两点，
+1. 值字段的类型必须相同，可以使用cast来统一格式。
+2. unpivot  后面必须要起别名。
