@@ -1576,3 +1576,13 @@ UNPIVOT(val for num_type in (num,money,day_num)) as t
 使用时需要注意以下两点，
 1. 值字段的类型必须相同，可以使用cast来统一格式。
 2. unpivot  后面必须要起别名。
+
+# SQL server关联更新
+
+``` sql
+update a 
+set a.id = case when b.num > 10 then b.id else a.id end 
+from table1 a
+left join table2 b on a.id = b.id
+
+```
