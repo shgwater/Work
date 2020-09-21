@@ -1586,3 +1586,14 @@ from table1 a
 left join table2 b on a.id = b.id
 
 ```
+
+#  sql函数
+
+COALESCE是一个函数， (expression_1, expression_2, ...,expression_n)依次参考各参数表达式，遇到非null值即停止并返回该值。如果所有的表达式都是空值，最终将返回一个空值。使用COALESCE在于大部分包含空值的表达式最终将返回空值
+
+
+
+# 数仓大宽表规范
+
+1. 字符串如果为null使用 '' 代替，数值如果为 null 使用 0 代替，时间如果为 null  保留 null 。
+2. 时间字段命名为 time，日期字段名后缀为 date。
