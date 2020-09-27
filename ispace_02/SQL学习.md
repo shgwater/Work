@@ -1263,7 +1263,7 @@ DELETE t from
 (
 select reservation_order_no 
 ,row_number()over(partition by reservation_order_no order by r_id) as row_number
-from fact_oms_wro_base  t
+from fact_oms_wro_base 
 ) t where t.row_number > 1
 
 ```
