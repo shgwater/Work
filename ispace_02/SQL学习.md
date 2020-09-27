@@ -1259,12 +1259,6 @@ select '0004' as id , '1' as cla, 83 as score
 ### 5.sqlserver 使用窗口函数删除重复数据
 
 ``` sql
-select  reservation_order_no
-,count(1)
-from fact_oms_wro_base
-group by reservation_order_no
-having count(1) > 1
-
 DELETE t from
 (
 select reservation_order_no 
