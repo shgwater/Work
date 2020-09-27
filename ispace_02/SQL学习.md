@@ -1256,7 +1256,23 @@ select '0004' as id , '1' as cla, 83 as score
 >排名问题：每个部门按业绩来排名
 >topN问题：找出每个部门排名前N的员工进行奖励
 
+### 5.sqlserver 使用窗口函数删除重复数据
 
+``` sql
+select  reservation_order_no
+,count(1)
+from fact_oms_wro_base
+group by reservation_order_no
+having count(1) > 1
+
+DELETE t from
+(
+select reservation_order_no 
+,row_number()over(partition by reservation_order_no order by r_id) as row_number
+from fact_oms_wro_base  t
+) t where t.row_number > 1
+
+```
 # 条件过滤时注意null
 
 如果条件判断为 <> 时，sql会默认把null也过滤掉，因此在写过滤条件的时候需要把null的部分也增加上。
@@ -1597,3 +1613,4 @@ COALESCE是一个函数， (expression_1, expression_2, ...,expression_n)依次�
 
 1. 字符串如果为null使用 '' 代替，数值如果为 null 使用 0 代替，时间如果为 null  保留 null 。
 2. 时间字段命名为 time，日期字段名后缀为 date。
+3. 分成两段来处理，第一段是
