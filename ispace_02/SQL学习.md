@@ -1608,3 +1608,19 @@ COALESCE是一个函数， (expression_1, expression_2, ...,expression_n)依次�
 1. 字符串如果为null使用 '' 代替，数值如果为 null 使用 0 代替，时间如果为 null  保留 null 。
 2. 时间字段命名为 time，日期字段名后缀为 date。
 3. 分成两段来处理，第一段是
+
+# SQL server 事务日志满
+``` sql
+-- 收缩事务日志
+USE olap;
+GO
+DBCC SHRINKFILE (olap);
+GO
+-- 监控收缩进程进度
+select a.percent_complete,a.* from sys.dm_exec_requests a
+ where session_id='56'
+
+ sp_who2
+
+ kill 56
+ ```
