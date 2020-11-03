@@ -1631,4 +1631,10 @@ select a.percent_complete,a.* from sys.dm_exec_requests a
  
  
  # mysql 不同编码数据库表之间如何使索引生效
+ ``` sql
  
+ EXPLAIN
+select * from oms.goods_order a
+left join 
+www.reservation_order_relation  b on b.decorate_order_no =CONVERT( a.order_no USING utf8) 
+ ```
