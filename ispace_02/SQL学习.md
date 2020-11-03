@@ -1628,3 +1628,7 @@ select a.percent_complete,a.* from sys.dm_exec_requests a
  [RDS SQL Server如何查看实例、数据库及表占用的空间大小](https://help.aliyun.com/knowledge_detail/41800.html#concept-fxr-jm1-hhb)
  
  [解决SQL Server实例空间满自动锁的问题](https://help.aliyun.com/knowledge_detail/50929.html?spm=a2c4g.11186623.4.1.654fb4fbxcyeMf)
+ 
+ 
+ # mysql 不同编码数据库表之间如何使索引生效
+ 
