@@ -1631,6 +1631,16 @@ select a.percent_complete,a.* from sys.dm_exec_requests a
  
  
  # mysql 不同编码数据库表之间如何使索引生效
+ 
+ 
+ 1.修改两个表的编码,保持一致.但是这会更改整个表的结构,在不能确定有无其他影响的情况下,建议不要使用.
+
+2.使用转换函数,降编码统一
+
+CONVERT(expr USING transcoding_name)
+
+question：反向使用   `CONVERT( b.decorate_order_no USING utf8mb4) `时不生效。为何？
+
  ``` sql
  
  EXPLAIN
