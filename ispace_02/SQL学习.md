@@ -566,7 +566,61 @@ sum(payment_amount) over(partition by orders_no order by create_time)
 where orders_no ='DD20181202000485'
 
 ```
+eg. 计算阶梯价格的方案。
+``` sql
+drop table if exists dim_goods_gppd;
 
+with subtract as (
+select 
+sum(dggb.sum_price) over(partition by dggb.product_price_id order by dggb.sort desc) as subtract_cumsum --应减金额
+,dggb.*
+from dim_goods_gppd_base dggb
+where  dggb.price_type = 2
+),
+plus as (
+select 
+sum(dggb.sum_price) over(partition by dggb.product_price_id order by dggb.sort) as plus_cumsum -- 应加金额
+,dggb.*
+from dim_goods_gppd_base dggb
+where  dggb.price_type = 1
+),
+dggb as (
+select
+dggb.product_price_id -- 售卖套餐id
+,dggb.product_no
+,dggb.area_code
+,dggb.id -- 价表明细ID
+,dggb.start_area -- 明细起始面积
+,dggb.end_area -- 明细终止面积
+,dggb.price_type -- 超平米售价类型 1+ 2-
+,dggb.price -- 价格
+,dggb.sum_price -- 区间价格
+,dggb.sort -- 排序值
+,dggb.create_time -- 创建时间
+,dggb.update_time -- 最后更新时间
+from dim_goods_gppd_base dggb
+)
+select 
+dggb.product_price_id -- 售卖套餐id
+,dggb.product_no
+,dggb.area_code
+,dggb.id -- 价表明细ID
+,dggb.start_area -- 明细起始面积
+,dggb.end_area -- 明细终止面积
+,dggb.price_type -- 超平米售价类型 1+ 2-
+,dggb.price -- 价格
+,dggb.sum_price -- 区间价格
+,isnull(subtract.subtract_cumsum,0) as subtract_cumsum --应减金额 -- 应减价格
+,isnull(plus.plus_cumsum,0) as plus_cumsum -- 应加金额 -- 应加价格
+,dggb.sort -- 排序值
+,dggb.create_time -- 创建时间
+,dggb.update_time -- 最后更新时间
+into dim_goods_gppd
+from dggb 
+left join subtract on dggb.product_price_id = subtract.product_price_id and dggb.sort = subtract.sort-1
+left join plus on dggb.product_price_id = plus.product_price_id and dggb.sort = plus.sort+1
+
+```
 
 
 # sqlserver中游标的使用
