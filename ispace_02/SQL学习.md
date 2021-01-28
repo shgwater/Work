@@ -1702,3 +1702,8 @@ select * from oms.goods_order a
 left join 
 www.reservation_order_relation  b on b.decorate_order_no =CONVERT( a.order_no USING utf8) 
  ```
+ 
+ 
+ # 事务
+
+但是需要注意，复制下来的时候最后停掉所有链接，然后使用sqliteStudio对数据文件进行清理，还有就是在sql起始和结束加上begin和commit，使其作为一个事务进行，会显著提高大量insert的效率。
