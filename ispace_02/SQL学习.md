@@ -1321,6 +1321,69 @@ from fact_oms_wro_base
 ) t where t.row_number > 1
 
 ```
+# sql向下填充
+
+转自 https://blog.csdn.net/liuya19921123/article/details/120261568
+## 一、数据处理背景说明
+
+数据背景：
+
+比如埋点过程中往往存在埋点记录缺失的问题，比如app跳转h5的获取用户卡号缺失，用同一ip获取卡号向下填充，进行数据补齐操作。
+
+抽象成以下数据场景：
+
+sql实现excel内自动向下填充的功能，实现下面的图片的数据填充处理功能
+| id | score |     | id | score |
+|----|-------|-----|----|-------|
+| 1  | 3     |     | 1  | 3     |
+| 2  | 4     | 转换后 | 2  | 4     |
+| 3  |       |     | 3  | 4     |
+| 4  | 3     |     | 4  | 3     |
+| 5  |       |     | 5  | 3     |
+| 6  |       |     | 6  | 3     |
+| 7  | 5     |     | 7  | 5     |
+二、处理过程分析
+针对查询sql存在CET递归的方法进行查询，这边主要针对数仓层hive使用tsql的方法进行处理。主要是对分组排序关联后进行字段null的填充。
+![enter description here](./images/1634695672190.png)
+三、具体语句实现
+sql代码实现：
+```sql
+with soucre as ( 
+    select 1 as id , 3 as score 
+    union all 
+    select 2 as id , 4 as score 
+    union all 
+    select 3 as id , null as score 
+    union all 
+    select 4 as id , 3 as score 
+    union all 
+    select 5 as id , null as score 
+    union all 
+    select 6 as id , null as score 
+    union all 
+    select 7 as id , 5 as score ) -- 测试数据表创建
+ select step_1.id,step_1.score as old_score,step_2.score as new_score
+ from ( 
+     select id
+     ,score 
+     ,sum(case when score is null then 0 else 1 end)over(order by id) as rank_id 
+     from soucre ) as step_1     -- step_1:score是否有值分组排序
+join( 
+    select id
+    ,score
+    ,row_number()over(order by id) as join_id 
+    from soucre where score is not null ) as step_2  -- step_2:score有值分组排序
+on step_1.rank_id = step_2.join_id
+
+```
+
+
+四、运行结果展示
+
+![enter description here](./images/1634695727872.png)
+
+
+
 # 条件过滤时注意null
 
 如果条件判断为 <> 时，sql会默认把null也过滤掉，因此在写过滤条件的时候需要把null的部分也增加上。
@@ -1425,9 +1488,9 @@ from order_source
 where query !="" 
 group by buyer_id ;
 ```
-buyer_id | query                                                                                                                                       
-+----------+--------------------------------
-|   757069 | 纸品,斜挂包女
+| buyer_id | query |
+|----------|--------------------------------|
+|   757069 | 纸品,斜挂包女|
 # sqlserver
 
 sqlserver中无可直接使用的自带函数，需要自建函数。
