@@ -1770,3 +1770,21 @@ www.reservation_order_relation  b on b.decorate_order_no =CONVERT( a.order_no US
  # 事务
 
 但是需要注意，复制下来的时候最后停掉所有链接，然后使用sqliteStudio对数据文件进行清理，还有就是在sql起始和结束加上begin和commit，使其作为一个事务进行，会显著提高大量insert的效率。
+
+# 身份证号拆分
+
+``` sql
+select 
+a.user_id
+,case when a.gender = 0 then '女' when a.gender = 1 then '男' else '空' end -- （0女1男）
+,STR_TO_DATE(concat(substr(b.card_num,7,4),'-',substr(b.card_num,11,2),'-',substr(b.card_num,13,2)), '%Y-%m-%d')
+,case when a.marry_state  = 0 then '未婚' when a.marry_state  = 1 then '已婚' else '空'  end -- 0未婚 1已婚
+,case when length(b.card_num) = 18
+then ceiling(DATEDIFF(now(),STR_TO_DATE(concat(substr(b.card_num,7,4),'-',substr(b.card_num,11,2),'-',substr(b.card_num,13,2),' 00:00:00'), '%Y-%m-%d %H:%i:%s'))/365)
+else null end -- 年龄
+,case when power(-1,substr(b.card_num,17,1)) = -1 then '男' when power(-1,substr(b.card_num,17,1))=1 then '女' else null end 
+from www.user_info a
+left join www.user_identity_card b on a.user_id = b.user_id 
+where a.user_id in
+
+```
